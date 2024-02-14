@@ -56,7 +56,7 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 
 
 
-bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanList)
+bool RADIO_CheckValidChannel(channel_t channel, bool checkScanList, uint8_t scanList)
 {
 	// return true if the channel appears valid
 	if (!IS_MR_CHANNEL(channel))
@@ -79,10 +79,10 @@ bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanL
 	return PriorityCh1 != channel && PriorityCh2 != channel;
 }
 
-uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t VFO)
+channel_t RADIO_FindNextChannel(channel_t Channel, int8_t Direction, bool bCheckScanList, uint8_t VFO)
 {
 	for (unsigned int i = 0; IS_MR_CHANNEL(i); i++, Channel += Direction) {
-		if (Channel == 0xFF) {
+		if (Channel == MAX_CHANNEL) {
 			Channel = MR_CHANNEL_LAST;
 		} else if (!IS_MR_CHANNEL(Channel)) {
 			Channel = MR_CHANNEL_FIRST;
@@ -93,10 +93,10 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 		}
 	}
 
-	return 0xFF;
+	return MAX_CHANNEL;
 }
 
-void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t Frequency)
+void RADIO_InitInfo(VFO_Info_t *pInfo, const channel_t ChannelSave, const uint32_t Frequency)
 {
 	memset(pInfo, 0, sizeof(*pInfo));
 
@@ -134,7 +134,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			gEeprom.ScreenChannel[VFO] = FREQ_CHANNEL_FIRST + BAND6_400MHz;
 	}
 
-	uint8_t channel = gEeprom.ScreenChannel[VFO];
+	channel_t channel = gEeprom.ScreenChannel[VFO];
 
 	if (IS_VALID_CHANNEL(channel)) {
 #ifdef ENABLE_NOAA
@@ -154,7 +154,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		if (IS_MR_CHANNEL(channel)) {
 			channel = RADIO_FindNextChannel(channel, RADIO_CHANNEL_UP, false, VFO);
-			if (channel == 0xFF) {
+			if (channel == MAX_CHANNEL) {
 				channel                    = gEeprom.FreqChannel[VFO];
 				gEeprom.ScreenChannel[VFO] = gEeprom.FreqChannel[VFO];
 			}
@@ -203,9 +203,9 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 	uint16_t base;
 	if (IS_MR_CHANNEL(channel))
-		base = channel * 16;
+		base = EEPROM_MR_CH_FREQ_OFF + channel * 16;
 	else
-		base = 0x0C80 + ((channel - FREQ_CHANNEL_FIRST) * 32) + (VFO * 16);
+		base = EEPROM_FREQ_CH_FREQ_OFF + ((channel - FREQ_CHANNEL_FIRST) * 32) + (VFO * 16);
 
 	if (configure == VFO_CONFIGURE_RELOAD || IS_FREQ_CHANNEL(channel))
 	{

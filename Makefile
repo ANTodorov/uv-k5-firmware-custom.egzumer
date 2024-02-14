@@ -41,6 +41,11 @@ ENABLE_BYP_RAW_DEMODULATORS   ?= 0
 ENABLE_BLMIN_TMP_OFF          ?= 0
 ENABLE_SCAN_RANGES            ?= 1
 
+# ---- EEPROM MODS ---
+ENABLE_EEPROM_24C128          ?= 0
+ENABLE_EEPROM_24C256          ?= 0
+ENABLE_EEPROM_24C512          ?= 0
+
 # ---- DEBUGGING ----
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
@@ -199,6 +204,23 @@ endif
 
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
+CFLAGS =
+
+ifeq ($(ENABLE_EEPROM_24C128),1)
+	CFLAGS  += -DENABLE_ALT_CHANNELS -DEEPROM_24C128
+	AUTHOR_STRING ?= EGZUMR1
+	ALT_CHANNELS = 239
+endif
+ifeq ($(ENABLE_EEPROM_24C256),1)
+	CFLAGS  += -DENABLE_ALT_CHANNELS -DEEPROM_24C256
+	AUTHOR_STRING ?= EGZUMR2
+	ALT_CHANNELS = 736
+endif
+ifeq ($(ENABLE_EEPROM_24C512),1)
+	CFLAGS  += -DENABLE_ALT_CHANNELS -DEEPROM_24C512
+	AUTHOR_STRING ?= EGZUMR3
+	ALT_CHANNELS = 999
+endif
 
 AUTHOR_STRING ?= EGZUMER
 # the user might not have/want git installed
@@ -216,13 +238,11 @@ ifeq (, $(VERSION_STRING))
 endif
 #VERSION_STRING := 230930b
 
-
 ASFLAGS = -c -mcpu=cortex-m0
 ifeq ($(ENABLE_OVERLAY),1)
 	ASFLAGS += -DENABLE_OVERLAY
 endif
 
-CFLAGS =
 ifeq ($(ENABLE_CLANG),0)
 	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c2x -MMD
 	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
@@ -429,6 +449,11 @@ endif
 
 	$(SIZE) $<
 
+ifdef ALT_CHANNELS
+	$(info )
+	$(info Alternative channels: ${ALT_CHANNELS} (${AUTHOR_STRING}))
+	$(info )
+endif
 debug:
 	/opt/openocd/bin/openocd -c "bindto 0.0.0.0" -f interface/jlink.cfg -f dp32g030.cfg
 

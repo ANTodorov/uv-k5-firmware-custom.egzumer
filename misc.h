@@ -41,6 +41,90 @@
 #define IS_VALID_CHANNEL(x)    ((x) < LAST_CHANNEL)
 #define IS_NOAA_CHANNEL(x)     ((x) >= NOAA_CHANNEL_FIRST && (x) <= NOAA_CHANNEL_LAST)
 
+#ifdef ENABLE_ALT_CHANNELS
+	typedef uint16_t channel_t;
+
+	#ifdef EEPROM_24C128
+		#define MR_CHANNELS_COUNT       239
+	#endif
+	#ifdef EEPROM_24C256
+		#define MR_CHANNELS_COUNT       736
+	#endif
+	#ifdef EEPROM_24C512
+		#define MR_CHANNELS_COUNT       999
+	#endif
+
+	#define EEPROM_SIZE               	0xFFFF  //Exact size is 0x10000 but the ckecs are "gret or equal" so a bit off to fit in 2 bytes looks like ok
+	#define FREQ_CHANNELS_COUNT       	7       // VFO in each freq band is like a "system channel"
+	#define FM_CHANNELS_COUNT         	20      // are these NOAA? no clue, but let's define them in a constant here
+	#define MAX_CHANNEL               	0xffff  // a mask defining ceil of two bytes
+
+	#define EEPROM_ALT_BEGIN_OFF		0x2000  //
+
+	#define EEEPROM_DISP_CH_STORE_OFF	(EEPROM_ALT_BEGIN_OFF) // Screen CH A, MR CH A, Freq CH A, Screen CH B, MR CH B, Freq CH B, NOAA CH A, NOAA CH B
+	#define EEEPROM_DISP_CH_STORE_LEN 	0x0010
+
+	#define EEPROM_SETTINGS_OFF			(EEEPROM_DISP_CH_STORE_OFF + EEEPROM_DISP_CH_STORE_LEN) // 1 CALL, SQUELTCH, TOT, etc.
+	#define EEPROM_SETTINGS_LEN			0x0010
+
+	#define EEPROM_SCANLIST_OFF			(EEPROM_SETTINGS_OFF + EEPROM_SETTINGS_LEN) // Scan List
+	#define EEPROM_SCANLIST_LEN			0x0010
+
+	#define EEPROM_MR_CH_NAME_OFF       (EEPROM_SCANLIST_OFF + EEPROM_SCANLIST_LEN)
+	#define EEPROM_MR_CH_NAME_LEN       (MR_CHANNELS_COUNT * 16)
+
+	#define EEPROM_MR_CH_FREQ_OFF     	(EEPROM_MR_CH_NAME_OFF + EEPROM_MR_CH_NAME_LEN)  // Start of the channel relocation
+	#define EEPROM_MR_CH_FREQ_LEN     	(MR_CHANNELS_COUNT * 16)
+
+	#define EEPROM_FREQ_CH_FREQ_OFF   	(EEPROM_MR_CH_FREQ_OFF + EEPROM_MR_CH_FREQ_LEN)
+	#define EEPROM_FREQ_CH_FREQ_LEN   	(FREQ_CHANNELS_COUNT * 16 * 2)
+
+	#define EEPROM_MR_CH_ATTR_OFF     	(EEPROM_FREQ_CH_FREQ_OFF + EEPROM_FREQ_CH_FREQ_LEN)
+	#define EEPROM_MR_CH_ATTR_LEN     	(MR_CHANNELS_COUNT)
+
+	#define EEPROM_FREQ_CH_ATTR_OFF   	(EEPROM_MR_CH_ATTR_OFF + EEPROM_MR_CH_ATTR_LEN)
+	#define EEPROM_FREQ_CH_ATTR_LEN   	(FREQ_CHANNELS_COUNT)
+
+	#define EEPROM_LAST               	(EEPROM_FREQ_CH_ATTR_OFF + EEPROM_FREQ_CH_ATTR_LEN)
+	static const uint16_t MR_CHANNEL_FIRST   = 0;
+	static const uint16_t MR_CHANNEL_LAST    = (MR_CHANNELS_COUNT - 1);
+	static const uint16_t FREQ_CHANNEL_FIRST = MR_CHANNELS_COUNT;
+	static const uint16_t FREQ_CHANNEL_LAST  = (MR_CHANNELS_COUNT + FREQ_CHANNELS_COUNT - 1);
+	static const uint16_t NOAA_CHANNEL_FIRST = (MR_CHANNELS_COUNT + FREQ_CHANNELS_COUNT);
+	static const uint16_t NOAA_CHANNEL_LAST  = (MR_CHANNELS_COUNT + FREQ_CHANNELS_COUNT + FM_CHANNELS_COUNT -1);
+	static const uint16_t LAST_CHANNEL       = (MR_CHANNELS_COUNT + FREQ_CHANNELS_COUNT + FM_CHANNELS_COUNT);
+#else
+	typedef uint8_t channel_t;
+
+	#define EEPROM_SIZE                 0x2000
+	#define FREQ_CHANNELS_COUNT         7
+	#define FM_CHANNELS_COUNT           20
+	#define MR_CHANNELS_COUNT           200
+	#define MAX_CHANNEL                 0xff
+
+	#define EEPROM_MR_CH_FREQ_OFF       0x0000
+	#define EEPROM_MR_CH_FREQ_LEN       0x0C80
+
+	#define EEPROM_FREQ_CH_FREQ_OFF     0x0C80
+	#define EEPROM_FREQ_CH_FREQ_LEN     0x00E0
+
+	#define EEPROM_MR_CH_ATTR_OFF       0x0D60
+	#define EEPROM_MR_CH_ATTR_LEN       0x00C8
+
+	#define EEPROM_FREQ_CH_ATTR_OFF     0x0E28
+	#define EEPROM_FREQ_CH_ATTR_LEN     0x0007
+
+	#define EEEPROM_DISP_CH_STORE_OFF   0x0E80
+	#define EEEPROM_DISP_CH_STORE_LEN   0x0008
+
+	#define EEPROM_SETTINGS_OFF		    0x0E70
+	#define EEPROM_SETTINGS_LEN		    0x0008
+
+	#define EEPROM_SCANLIST_OFF	        0x0F18
+	#define EEPROM_SCANLIST_LEN	        0x0008
+
+	#define EEPROM_MR_CH_NAME_OFF       0x0F50
+	#define EEPROM_MR_CH_NAME_LEN       0x0C80
 enum {
 	MR_CHANNEL_FIRST   = 0,
 	MR_CHANNEL_LAST    = 199u,
@@ -50,6 +134,9 @@ enum {
 	NOAA_CHANNEL_LAST  = 216u,
 	LAST_CHANNEL
 };
+#endif  // ENABLE_ALT_CHANNELS
+
+#define ALL_CHANNELS_COUNT        (MR_CHANNELS_COUNT + FREQ_CHANNELS_COUNT)
 
 enum {
 	VFO_CONFIGURE_NONE = 0,
@@ -186,7 +273,7 @@ typedef union {
     uint8_t __val;
 } ChannelAttributes_t;
 
-extern ChannelAttributes_t   gMR_ChannelAttributes[207];
+extern ChannelAttributes_t   gMR_ChannelAttributes[ALL_CHANNELS_COUNT];
 
 extern volatile uint16_t     gBatterySaveCountdown_10ms;
 

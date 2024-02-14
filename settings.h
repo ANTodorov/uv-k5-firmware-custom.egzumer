@@ -24,6 +24,7 @@
 #include <helper/battery.h>
 #include "radio.h"
 #include <driver/backlight.h>
+#include "misc.h"
 
 enum POWER_OnDisplayMode_t {
 	POWER_ON_DISPLAY_MODE_FULL_SCREEN = 0,
@@ -125,9 +126,9 @@ enum CHANNEL_DisplayMode_t {
 typedef enum CHANNEL_DisplayMode_t CHANNEL_DisplayMode_t;
 
 typedef struct {
-	uint8_t               ScreenChannel[2]; // current channels set in the radio (memory or frequency channels)
-	uint8_t               FreqChannel[2]; // last frequency channels used
-	uint8_t               MrChannel[2]; // last memory channels used
+	channel_t             ScreenChannel[2]; // current channels set in the radio (memory or frequency channels)
+	channel_t             FreqChannel[2]; // last frequency channels used
+	channel_t             MrChannel[2]; // last memory channels used
 #ifdef ENABLE_NOAA
 	uint8_t           NoaaChannel[2];
 #endif
@@ -152,11 +153,11 @@ typedef struct {
 	//uint8_t 		  FM_Space : 2;
 #endif
 
-	uint8_t               SQUELCH_LEVEL;
-	uint8_t               TX_TIMEOUT_TIMER;
+	channel_t             SQUELCH_LEVEL;
+	channel_t             TX_TIMEOUT_TIMER;
 	bool                  KEY_LOCK;
 	bool                  VOX_SWITCH;
-	uint8_t               VOX_LEVEL;
+	channel_t             VOX_LEVEL;
 #ifdef ENABLE_VOICE
 	VOICE_Prompt_t    VOICE_PROMPT;
 #endif
@@ -169,10 +170,10 @@ typedef struct {
 	uint8_t               BATTERY_SAVE;
 	uint8_t               BACKLIGHT_TIME;
 	uint8_t               SCAN_RESUME_MODE;
-	uint8_t               SCAN_LIST_DEFAULT;
+	channel_t             SCAN_LIST_DEFAULT;
 	bool                  SCAN_LIST_ENABLED[2];
-	uint8_t               SCANLIST_PRIORITY_CH1[2];
-	uint8_t               SCANLIST_PRIORITY_CH2[2];
+	channel_t             SCANLIST_PRIORITY_CH1[2];
+	channel_t             SCANLIST_PRIORITY_CH2[2];
 
 	uint8_t               field29_0x26;
 	uint8_t               field30_0x27;
@@ -191,9 +192,9 @@ typedef struct {
 	uint8_t               KEY_1_LONG_PRESS_ACTION;
 	uint8_t               KEY_2_SHORT_PRESS_ACTION;
 	uint8_t               KEY_2_LONG_PRESS_ACTION;
-	uint8_t               MIC_SENSITIVITY;
+	channel_t             MIC_SENSITIVITY;
 	uint8_t               MIC_SENSITIVITY_TUNING;
-	uint8_t               CHAN_1_CALL;
+	channel_t             CHAN_1_CALL;
 #ifdef ENABLE_DTMF_CALLING
 	char                  ANI_DTMF_ID[8];
 	char                  KILL_CODE[8];
@@ -265,10 +266,10 @@ void     SETTINGS_FactoryReset(bool bIsAll);
 #endif
 void SETTINGS_SaveVfoIndices(void);
 void SETTINGS_SaveSettings(void);
-void SETTINGS_SaveChannelName(uint8_t channel, const char * name);
-void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode);
+void SETTINGS_SaveChannelName(channel_t channel, const char * name);
+void SETTINGS_SaveChannel(channel_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode);
+void SETTINGS_UpdateChannel(channel_t channel, const VFO_Info_t *pVFO, bool keep);
 void SETTINGS_SaveBatteryCalibration(const uint16_t * batteryCalibration);
-void SETTINGS_UpdateChannel(uint8_t channel, const VFO_Info_t *pVFO, bool keep);
 void SETTINGS_WriteBuildOptions(void);
 
 #endif

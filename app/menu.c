@@ -1166,7 +1166,7 @@ void MENU_ShowCurrentSetting(void)
 
 static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	uint8_t  Offset;
+	channel_t  Offset;
 	int32_t  Min;
 	int32_t  Max;
 	uint16_t Value = 0;
@@ -1579,7 +1579,7 @@ static void MENU_Key_STAR(const bool bKeyPressed, const bool bKeyHeld)
 static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 {
 	uint8_t VFO;
-	uint8_t Channel;
+	channel_t Channel;
 	bool    bCheckScanList;
 
 	if (UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME && gIsInSubMenu && edit_index >= 0)
@@ -1680,7 +1680,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	}
 
 	Channel = RADIO_FindNextChannel(gSubMenuSelection + Direction, Direction, bCheckScanList, VFO);
-	if (Channel != 0xFF)
+	if (Channel != MAX_CHANNEL)
 		gSubMenuSelection = Channel;
 
 	gRequestDisplayScreen = DISPLAY_MENU;

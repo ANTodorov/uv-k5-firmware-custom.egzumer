@@ -234,15 +234,15 @@ static void NextMemChannel(void)
 			case SCAN_NEXT_CHAN_MR:
 				currentScanList = SCAN_NEXT_CHAN_MR;
 				gNextMrChannel   = prev_mr_chan;
-				chan             = 0xff;
+				chan             = MAX_CHANNEL;
 				break;
 		}
 	}
 
-	if (!enabled || chan == 0xff)
+	if (!enabled || chan == MAX_CHANNEL)
 	{
 		chan = RADIO_FindNextChannel(gNextMrChannel + gScanStateDir, gScanStateDir, (gEeprom.SCAN_LIST_DEFAULT < 2) ? true : false, gEeprom.SCAN_LIST_DEFAULT);
-		if (chan == 0xFF)
+		if (chan == MAX_CHANNEL)
 		{	// no valid channel found
 			chan = MR_CHANNEL_FIRST;
 		}
