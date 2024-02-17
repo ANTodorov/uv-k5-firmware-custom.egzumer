@@ -454,13 +454,12 @@ void SETTINGS_FactoryReset(bool bIsAll)
 	}
 
 #ifdef ENABLE_ALT_CHANNELS
-	for (i = EEPROM_ALT_BEGIN_OFF; i < EEPROM_LAST; i +=8)
+	for (i = EEPROM_ALT_BEGIN_OFF; i < EEPROM_ALT_LAST; i += 8)
 	{
 		if (bIsAll ||
 			(
 			!(i >= EEPROM_SCANLIST_OFF   && i < (EEPROM_SCANLIST_OFF + EEPROM_SCANLIST_LEN)) &&     // Scan List
-			!(i >= EEPROM_MR_CH_NAME_OFF && i < (EEPROM_MR_CH_NAME_OFF + EEPROM_MR_CH_NAME_OFF)) && // MR Channel Names
-			!(i >= EEPROM_MR_CH_ATTR_OFF && i < (EEPROM_MR_CH_ATTR_OFF + EEPROM_MR_CH_ATTR_LEN))    // MR Channel Attributes
+			!(i >= EEPROM_MR_CH_NAME_OFF && i < (EEPROM_ALT_LAST))
 			)
 		)
 		{
