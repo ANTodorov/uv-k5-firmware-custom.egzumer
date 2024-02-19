@@ -73,8 +73,8 @@ bool RADIO_CheckValidChannel(channel_t channel, bool checkScanList, uint8_t scan
 	if (scanList ? !att.scanlist2 : !att.scanlist1)
 		return false;
 
-	const uint8_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[scanList];
-	const uint8_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[scanList];
+	const channel_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[scanList];
+	const channel_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[scanList];
 
 	return PriorityCh1 != channel && PriorityCh2 != channel;
 }

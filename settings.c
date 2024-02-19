@@ -458,7 +458,7 @@ void SETTINGS_FactoryReset(bool bIsAll)
 	{
 		if (bIsAll ||
 			(
-			!(i >= EEPROM_SCANLIST_OFF   && i < (EEPROM_SCANLIST_OFF + EEPROM_SCANLIST_LEN)) &&     // Scan List
+			!(i >= EEPROM_SCANLIST_OFF   && i < (EEPROM_SCANLIST_OFF + EEPROM_SCANLIST_LEN)) &&    // Scan List
 			!(i >= EEPROM_MR_CH_NAME_OFF && i < (EEPROM_ALT_LAST))
 			)
 		)
